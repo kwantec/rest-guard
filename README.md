@@ -3,7 +3,7 @@ Library for Access Control to REST services in NODEJS.
 
 ## Synopsis
  
- The purpose of the library is to provide a lightweight library to access control to REST services.
+ The purpose of the library is to provide a lightweight library for access control to REST services.
 
 ## Code Example
 
@@ -119,7 +119,7 @@ and that's all.
 ####Your Rest API is guarded.####
 
 
-## Motivaton
+## Motivation
 
 Security. 
 In other words, access to resource must be strong guarded by policies. Roles, users, or share links must be assigned to policies by resource.
@@ -133,12 +133,14 @@ Easy as `npm install rest-guard`.
 ```javascript
 
 /**
-* @param modelOwnersFields, an Array of string with 'Model.ownerField' format.
+* @param modelOwnersFields, an Array of string with 
+* 'Model.ownerField' format.
 */
 function setModelOwnerFields(modelOwnersFields);
 
 /**
-* @param modelOwnersFields, an Object with properties with 'Model.parentField': 'ParentModel' format.
+* @param modelOwnersFields, an Object with properties with 
+* 'Model.parentField': 'ParentModel' format.
 */
 function setModelParentingFields(modelOwnersFields);
 
@@ -165,17 +167,20 @@ function createPolicy(model, actionAlias, uri, httpMethod);
 function policiesCount();
 
 /**
-* When a policy is created, if the uri has a param you could define if is the resource id.
+* When a policy is created, if the uri has a param 
+* you could define if is the resource id.
 */
 function setResourceId(uriParam);
 
 /**
-* When a policy is created, if the uri has a param you could define if is the resource owner id.
+* When a policy is created, if the uri has a param 
+* you could define if is the resource owner id.
 */
 function setResourceOwnerId(uriParam);
 
 /**
-* When a policy is created, if the uri has a param you could define if is the resource parent id.
+* When a policy is created, if the uri has a param 
+* you could define if is the resource parent id.
 */
 function setResourceParentId(uriParam);
 
@@ -210,8 +215,10 @@ function grantPermission(permissions);
 function revokePermission(permissions);
 
 /**
- * Function to get an Array of user ids, like id, role, alias, (whatever you define).
- * @param userCredentialsFn =  function(callback){ ...; var ids=[];...; callback(ids);}
+ * Function to get an Array of user ids, like id, role, alias, 
+ * (whatever you define).
+ * @param userCredentialsFn =  
+ *function(callback){ ...; var ids=[];...; callback(ids);}
  * 
  */
 function userCredentialsFn(userCredentialsFn);
@@ -223,7 +230,8 @@ function userCredentialsFn(userCredentialsFn);
 function middleware(req, res, next);
 
 /**
- * Grant access to the endpoint represented by action_model, ignoring all permissions.
+ * Grant access to the endpoint represented by action_model, 
+ * ignoring all permissions.
  * @param model
  * @param action
  * @returns {*}
@@ -231,7 +239,8 @@ function middleware(req, res, next);
 function grantAccess(modelName, actionName);
 
 /**
- * Deny access to the endpoint represented by action_model, ignoring all permissions. 
+ * Deny access to the endpoint represented by action_model, 
+ * ignoring all permissions. 
  * @param model
  * @param action
  * @returns {*}
@@ -239,7 +248,8 @@ function grantAccess(modelName, actionName);
 function denyAccess(modelName, actionName);
 
 /**
- * Default access to the endpoint represented by action_model, looking for permissions to allow access. 
+ * Default access to the endpoint represented by action_model, 
+ * looking for permissions to allow access. 
  * @param model
  * @param action
  * @returns {*}

@@ -1,6 +1,6 @@
 {
   "name": "rest-guard",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Library for Access Control to REST services in NODEJS",
   "license":"MIT License",
   "main":"lib/rest-guard.js",
@@ -10,7 +10,7 @@
     "test": "gulp"
 
   },
-  "author":"Kwan Tech",
+  "author":"Kwan Tech <daniel@kwantec.com> (http://www.kwantec.com/)",
   "dependencies": {
     "async-foreach": "^0.1.3",
     "express": "^4.12.4",
@@ -33,5 +33,6 @@
     "should": "^7.0.2",
     "superagent": "^1.2.0"
   },
+  "contributors": ["Raul Ramirez Bazan <raulrb@gmail.com> (https://github.com/rabamirezzan)"],
   "keywords":["acl", "rbac", "rest", "security", "resource", "http"]
 }
