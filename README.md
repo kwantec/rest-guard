@@ -67,8 +67,8 @@ To define access you must create policies first:
 restGuard.createPolicy('Promotion', 'ReadAll', '/Promotion', 'get'); 
 ```
 at this point you have two options to grant access:
-- to assign policies to roles.
-- to assign policies to user and resources.
+- assigning policies to roles.
+- assigning policies to user and resources.
 
 **Assigning policies to roles.**
 ```javascript
@@ -115,8 +115,7 @@ You can define a resource's permission by id, owner, or parent.
        restGuard.grantPermission(permission);
   ```
 
-and that's all.
-####Your Rest API is guarded.####
+and that's all. **Your Rest API is guarded.**
 
 
 ## Motivation
@@ -128,7 +127,7 @@ In other words, access to resource must be strong guarded by policies. Roles, us
 
 Easy as `npm install rest-guard`.
 
-##API Reference
+## API Reference
 
 ```javascript
 
@@ -266,7 +265,7 @@ function hasRolePolicyPermission(role);
  * @param role
  * @returns {*|{}}
  */
-function getRolesPermissions ();
+function getRolesPermissions (role);
 
 
 /**
