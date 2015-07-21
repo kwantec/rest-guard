@@ -4,17 +4,23 @@
 'use strict';
 
 var path = require('path');
+var mongodb = require('mongodb');
 
-var ObjectID = require('mongodb').ObjectID;
+var MongoClient = mongodb.MongoClient
+var ObjectID = mongodb.ObjectID;
 var mongoose = require('mongoose');
-var promisify = require(path.resolve('./lib/all-promise')).promisify;
+var Q = require('q');
 
 //--------------------------------testing.
+var db;
 
+module.exports.getDB = function(){
+    return db;
+}
 
 function createModelsData(dbUrl, done) {
 
-    var db = mongoose.connection;
+    db = mongoose.connection;
 
 
     mongoose.connect(dbUrl
@@ -33,9 +39,9 @@ function createModelsData(dbUrl, done) {
                 var Branch = mongoose.model('Branch');
                 var Promotion = mongoose.model('Promotion');
 
-                var updateBusiness = promisify(Business, Business.update);
-                var updateBranch = promisify(Branch, Branch.update);
-                var updatePromotion = promisify(Promotion, Promotion.update);
+                var updateBusiness = Q.nbind(Business.update, Business);
+                var updateBranch = Q.nbind( Branch.update, Branch);
+                var updatePromotion = Q.nbind( Promotion.update, Promotion);
                 updateBusiness(
                     {user: userId, name: 'KwanTech'},
                     {_id: businessId, user: userId, name: 'KwanTech'},
@@ -78,12 +84,15 @@ function createModelsData(dbUrl, done) {
 }
 
 function deleteModelsData(done) {
+
+
     var Business = mongoose.model('Business');
     var Branch = mongoose.model('Branch');
     var Promotion = mongoose.model('Promotion');
-    var removeBusiness = promisify(Business, Business.remove);
-    var removeBranch = promisify(Branch, Branch.remove);
-    var removePromotion = promisify(Promotion, Promotion.remove);
+    var removeBusiness = Q.nbind( Business.remove, Business);
+    var removeBranch = Q.nbind( Branch.remove, Branch);
+    var removePromotion = Q.nbind( Promotion.remove, Promotion);
+
 
     removePromotion({}).then(function () {
         return removeBranch({});
@@ -92,7 +101,6 @@ function deleteModelsData(done) {
     }).then(done).fail(function (err) {
         console.error('Deleting models, something fails', err);
     });
-
 }
 module.exports.createData = createModelsData;
 module.exports.deleteData = deleteModelsData;

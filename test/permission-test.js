@@ -10,6 +10,8 @@ var request = require('superagent');
 var should = require('should');
 
 
+
+config.setPermissionCollection('rest_guard_permissions');
 config.setDBUrl("mongodb://localhost/rest_guard_test");
 var start = config.start;
 var response = config.response;
@@ -73,9 +75,11 @@ function init(app) {
 
 
 describe('Policy tests', function () {
-    this.timeout(30000);
+    this.timeout(3000);
+    //restGuard.setDisabled(true);
     var _app;
     before(function (done) {
+
         config.start(function (app) {
             _app = app;
             init(_app);
@@ -84,6 +88,7 @@ describe('Policy tests', function () {
     });
 
     after(function (done) {
+
         config.stop(function () {
             console.log('Testing end');
             done();
@@ -297,7 +302,7 @@ describe('Policy tests', function () {
 
     it('Grant resource access by policy grant access, Promotion Read', function (done) {
         restGuard.userCredentialsFn(function (req, callback) {
-            var userCredentials = ['unkown_user'];
+            var userCredentials = ['unknown_user'];
             callback(null, userCredentials);
         });
 

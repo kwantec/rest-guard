@@ -10,12 +10,17 @@ var policyService = require(path.resolve('./lib/rest-guard'));
 
 var modelsData = require(path.resolve('./test/models/models-config'));
 
+var mongoose = require('mongoose');
+
 var dbUrl = "mongodb://localhost/rest_guard_test";
 var _db = null;
 var _server;
-
+var _permissionsCol;
 module.exports.setDBUrl = function (url) {
     dbUrl = url;
+};
+module.exports.setPermissionCollection = function (permissionCol) {
+    _permissionsCol = permissionCol;
 };
 
 function callResponse(response) {
@@ -35,7 +40,7 @@ function connectMongo(example) {
             configureExpress(app);
 
             //configuring permissions storage
-            configurePermissionStorage(db);
+            configurePermissionStorage();
 
             //example(app);
             initServer(example);
@@ -56,8 +61,8 @@ function configureExpress(app) {
     }
 }
 
-function configurePermissionStorage(db) {
-    policyService.configureStorage(db, 'rest_guard_permissions');
+function configurePermissionStorage() {
+    policyService.configureStorage(mongoose, _permissionsCol);
 }
 
 function initServer(onConnect) {
@@ -93,8 +98,15 @@ function stop(fn) {
         }
         fn();
     };
-    modelsData.deleteData(shutdown);
+    var db = modelsData.getDB();
+
+    db.collection(_permissionsCol).remove({}, function(){
+        modelsData.deleteData(shutdown);
+    });
+
 }
+
+
 module.exports.start = start;
 module.exports.stop = stop;
 module.exports.response = callResponse;

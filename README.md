@@ -35,7 +35,7 @@ restGuard.userCredentialsFn(function (req, callback) {
 
 **Permission storage configuration.**
 ```javascript
-var db = "mongodb://localhost/rest-guard"
+var db = yourMongoose; // mongoose
 policyService.configureStorage(db, 'permissions_collection');
 ```
 **Models parenting and owner definitions.**
@@ -121,7 +121,7 @@ and that's all. **Your Rest API is guarded.**
 ## Motivation
 
 Security. 
-In other words, access to resource must be strong guarded by policies. Roles, users, or share links must be assigned to policies by resource.
+In other words, access to resource must be strong guarded by policies. Roles, users, or share links must be assigned to resource by policies.
 
 ## Installation
 
