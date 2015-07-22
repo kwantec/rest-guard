@@ -503,5 +503,56 @@ describe('Policy tests', function () {
     });
 
 
+    it('Checking resource id from req.body, user has not permission', function (done) {
+        restGuard.userCredentialsFn(function (req, callback) {
+            var userCredentials = ['kwantec'];
+            callback(null, userCredentials);
+        });
+
+        //var permission = [
+        //    {user: 'kwantec', resource: {id: '559806333ec75a390b407719'}, action: 'Update_Promotion'}
+        //];
+
+        //restGuard.grantPermission(permission);
+        restGuard.defaultAccess('Promotion', 'Update');
+        var x = request.
+            post('http://localhost:3001/api1/Promotion').
+            set('Content-Type', 'application/json').
+            send({_id:'559806333ec75a390b407719'}).
+            end(function (err, res) {
+                //restGuard.revokePermission(permission);
+                should(res.status).be.equal(403);
+                should(res.forbidden).be.true();
+                done();
+            });
+
+    });
+
+    it.only('Checking resource id from req.query, user has not permission', function (done) {
+        restGuard.userCredentialsFn(function (req, callback) {
+            var userCredentials = ['kwantec'];
+            callback(null, userCredentials);
+        });
+
+        //var permission = [
+        //    {user: 'kwantec', resource: {id: '559806333ec75a390b407719'}, action: 'Update_Promotion'}
+        //];
+
+        //restGuard.grantPermission(permission);
+        restGuard.defaultAccess('Promotion', 'Update');
+        var x = request.
+            post('http://localhost:3001/api1/Promotion?_id=559806333ec75a390b407719').
+            set('Content-Type', 'application/json').
+
+            end(function (err, res) {
+                //restGuard.revokePermission(permission);
+                should(res.status).be.equal(403);
+                should(res.forbidden).be.true();
+                done();
+            });
+
+    });
+
+
 
 });
