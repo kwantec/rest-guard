@@ -1,6 +1,6 @@
 {
   "name": "rest-guard",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Library for Access Control to REST services in NODEJS",
   "license":"MIT License",
   "main":"lib/rest-guard.js",

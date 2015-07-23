@@ -18,6 +18,11 @@ var response = config.response;
 
 var ALL = restGuard.ALL;
 
+var OWNER = '559806333ec75a390b40771c';
+var PROMOTION_ID = '559806333ec75a390b407719';
+var PARENT_ID = '559806333ec75a390b40771a';
+var ANCESTOR_ID='559806333ec75a390b40771b';
+
 function setMiddleware() {
 
 
@@ -43,12 +48,14 @@ function init(app) {
 //Configuring REST policies.
     restGuard.
         createPolicy('Business', 'ReadAll', '/Business', 'get').denyAccess().
-        createPolicy('Business', 'Read', '/Business/:businessId', 'get').setResourceId('businessId').grantAccess().
+        createPolicy('Business', 'Read', '/Business/:businessId', 'get').resourceIdFromUri('businessId').grantAccess().
         createPolicy('Business', 'Update', '/Business/:businessId', 'post').grantAccess().
-        createPolicy('Business', 'ReadByUser', '/User/:userId/Business', 'get').setResourceOwnerId('userId').
-        createPolicy('Branch', 'Read', '/Branch/:branchId', 'get').setResourceId('branchId').
+        createPolicy('Business', 'ReadByUser', '/User/:userId/Business', 'get').resourceOwnerIdFromUri('userId').
+        createPolicy('Branch', 'Read', '/Branch/:branchId', 'get').resourceIdFromUri('branchId').
         createPolicy('Branch', 'Update', '/Branch/:branchId', 'post').
-        createPolicy('Promotion', 'Read', '/Promotion/:promotionId', 'get').setResourceId('promotionId').
+        createPolicy('Promotion', 'ReadAll', '/Promotion', 'get').resourceOwnerIdFromBody('query.data.owner').
+        createPolicy('Promotion', 'Read', '/Promotion/:promotionId', 'get').resourceIdFromUri('promotionId').
+        createPolicy('Promotion', 'UpdateAll', '/Promotion', 'put').resourceParentIdFromBody('query.data.parent').resourceParentIdFromQuery('query.data.parent').
         createPolicy('Promotion', 'Update', '/Promotion', 'POST').
         createPolicy('Promotion', 'Delete', '/Promotion/:promotionId', 'DELETE');
 
@@ -69,6 +76,8 @@ function init(app) {
     //Defining a route
     app.route('/api1/Promotion/:promotionId').get(response({get: 'If you see this is because you have access.'}));
     app.route('/api1/Promotion').post(response({post: 'If you see this is because you have access.'}));
+    app.route('/api1/Promotion').get(response({get: 'If you see this is because you have access.'}));
+    app.route('/api1/Promotion').put(response({put: 'If you see this is because you have access.'}));
 
 
 }
@@ -97,7 +106,7 @@ describe('Policy tests', function () {
 
     it('Policy count', function () {
         var count = restGuard.policiesCount();
-        should(count).be.equal(9);
+        should(count).be.equal(11);
     });
 
     it('Granted resource access by user admin role, Promotion Read', function (done) {
@@ -108,8 +117,8 @@ describe('Policy tests', function () {
             callback(null, userCredentials);
         });
         restGuard.defaultAccess('Promotion', 'Read');
-        var x = request.
-            get('http://localhost:3001/api1/Promotion/559806333ec75a390b407719').
+        request.
+            get('http://localhost:3001/api1/Promotion/'+PROMOTION_ID).
             set('Content-Type', 'application/json').
             end(function (err, res) {
                 should(res.status).be.equal(200);
@@ -126,9 +135,9 @@ describe('Policy tests', function () {
             callback(null, userCredentials);
         });
         restGuard.defaultAccess('Promotion', 'Update');
-        var x = request.
+        request.
             post('http://localhost:3001/api1/Promotion/').
-            send({_id:'559806333ec75a390b407719'}).
+            send({_id:PROMOTION_ID}).
             set('Content-Type', 'application/json').
             end(function (err, res) {
                 should(res.status).be.equal(403);
@@ -141,12 +150,12 @@ describe('Policy tests', function () {
 
         //defining the function that returns the user credentials
         restGuard.userCredentialsFn(function (req, callback) {
-            var userCredentials = ['559806333ec75a390b40771c'];
+            var userCredentials = [OWNER];
             callback(null, userCredentials);
         });
         restGuard.defaultAccess('Promotion', 'Read');
-        var x = request.
-            get('http://localhost:3001/api1/Promotion/559806333ec75a390b407719').
+        request.
+            get('http://localhost:3001/api1/Promotion/'+PROMOTION_ID).
             set('Content-Type', 'application/json').
             end(function (err, res) {
                 should(res.status).be.equal(200);
@@ -159,13 +168,13 @@ describe('Policy tests', function () {
 
         //defining the function that returns the user credentials
         restGuard.userCredentialsFn(function (req, callback) {
-            var userCredentials = ['559806333ec75a390b40771c'];
+            var userCredentials = [OWNER];
             callback(null, userCredentials);
         });
         restGuard.defaultAccess('Promotion', 'Update');
-        var x = request.
+        request.
             post('http://localhost:3001/api1/Promotion').
-            send({_id:'559806333ec75a390b407719'}).
+            send({_id:PROMOTION_ID}).
             set('Content-Type', 'application/json').
             end(function (err, res) {
                 should(res.status).be.equal(200);
@@ -183,8 +192,8 @@ describe('Policy tests', function () {
         });
 
         restGuard.defaultAccess('Promotion', 'Read');
-        var x = request.
-            get('http://localhost:3001/api1/Promotion/559806333ec75a390b407719').
+        request.
+            get('http://localhost:3001/api1/Promotion/'+PROMOTION_ID).
             set('Content-Type', 'application/json').
             end(function (err, res) {
                 should(res.status).be.equal(403);
@@ -201,13 +210,13 @@ describe('Policy tests', function () {
             callback(null, userCredentials);
         });
         var permissions = [
-            {user: 'kwantec', resource: {id: '559806333ec75a390b407719'}, action: 'Read_Promotion'}
+            {user: 'kwantec', resource: {id: PROMOTION_ID}, action: 'Read_Promotion'}
         ];
 
         restGuard.grantPermission(permissions);
         restGuard.defaultAccess('Promotion', 'Read');
-        var x = request.
-            get('http://localhost:3001/api1/Promotion/559806333ec75a390b407719').
+        request.
+            get('http://localhost:3001/api1/Promotion/'+PROMOTION_ID).
             set('Content-Type', 'application/json').
             end(function (err, res) {
                 should(res.status).be.equal(200);
@@ -224,13 +233,13 @@ describe('Policy tests', function () {
             callback(null, userCredentials);
         });
         var permissions = [
-            {user: 'kwantec', resource: {owner: '559806333ec75a390b40771c'}, action: 'Read_Promotion'}
+            {user: 'kwantec', resource: {owner: OWNER}, action: 'Read_Promotion'}
         ];
 
         restGuard.grantPermission(permissions);
         restGuard.defaultAccess('Promotion', 'Read');
-        var x = request.
-            get('http://localhost:3001/api1/Promotion/559806333ec75a390b407719').
+        request.
+            get('http://localhost:3001/api1/Promotion/'+PROMOTION_ID).
             set('Content-Type', 'application/json').
             end(function (err, res) {
                 should(res.status).be.equal(200);
@@ -246,13 +255,13 @@ describe('Policy tests', function () {
             callback(null, userCredentials);
         });
         var permissions = [
-            {user: 'kwantec', resource: {parent: '559806333ec75a390b40771a'}, action: 'Read_Promotion'}
+            {user: 'kwantec', resource: {parent: PARENT_ID}, action: 'Read_Promotion'}
         ];
 
         restGuard.grantPermission(permissions);
         restGuard.defaultAccess('Promotion', 'Read');
-        var x = request.
-            get('http://localhost:3001/api1/Promotion/559806333ec75a390b407719').
+        request.
+            get('http://localhost:3001/api1/Promotion/'+PROMOTION_ID).
             set('Content-Type', 'application/json').
             end(function (err, res) {
                 should(res.status).be.equal(200);
@@ -268,13 +277,13 @@ describe('Policy tests', function () {
             callback(null, userCredentials);
         });
         var permissions = [
-            {user: 'kwantec', resource: {parent: '559806333ec75a390b40771b'}, action: 'Read_Promotion'}
+            {user: 'kwantec', resource: {parent: ANCESTOR_ID}, action: 'Read_Promotion'}
         ];
 
         restGuard.grantPermission(permissions);
         restGuard.defaultAccess('Promotion', 'Read');
-        var x = request.
-            get('http://localhost:3001/api1/Promotion/559806333ec75a390b407719').
+        request.
+            get('http://localhost:3001/api1/Promotion/'+PROMOTION_ID).
             set('Content-Type', 'application/json').
             end(function (err, res) {
                 should(res.status).be.equal(200);
@@ -290,7 +299,7 @@ describe('Policy tests', function () {
             callback(null, userCredentials);
         });
         restGuard.defaultAccess('Promotion', 'Read');
-        var x = request.
+        request.
             get('http://localhost:3001/api1/Promotion/559806333ec75a390b407718').
             set('Content-Type', 'application/json').
             end(function (err, res) {
@@ -308,8 +317,8 @@ describe('Policy tests', function () {
 
         restGuard.grantAccess('Promotion', 'Read');
 
-        var x = request.
-            get('http://localhost:3001/api1/Promotion/559806333ec75a390b407719').
+        request.
+            get('http://localhost:3001/api1/Promotion/'+PROMOTION_ID).
             set('Content-Type', 'application/json').
             end(function (err, res) {
                 should(res.status).be.equal(200);
@@ -326,7 +335,7 @@ describe('Policy tests', function () {
 
         restGuard.denyAccess('Promotion', 'Update');
 
-        var x = request.
+        request.
             post('http://localhost:3001/api1/Promotion').
             set('Content-Type', 'application/json').
             end(function (err, res) {
@@ -344,8 +353,8 @@ describe('Policy tests', function () {
 
         restGuard.defaultAccess('Promotion', 'Read');
 
-        var x = request.
-            get('http://localhost:3001/api1/Promotion/559806333ec75a390b407719').
+        request.
+            get('http://localhost:3001/api1/Promotion/'+PROMOTION_ID).
             set('Content-Type', 'application/json').
             end(function (err, res) {
                 should(res.status).be.equal(403);
@@ -362,7 +371,7 @@ describe('Policy tests', function () {
 
         restGuard.defaultAccess('Promotion', 'Read');
 
-        var x = request.
+        request.
             get('http://localhost:3001/api1/Unknown/559806333ec75a390b407718').
             set('Content-Type', 'application/json').
             end(function (err, res) {
@@ -385,7 +394,9 @@ describe('Policy tests', function () {
             Update_Branch: false,
             Read_Promotion: true,
             Update_Promotion: false,
-            Delete_Promotion: false
+            Delete_Promotion: false,
+            ReadAll_Promotion:false,
+            UpdateAll_Promotion:false
         };
         _.keys(permissions).forEach(function (p) {
             permissions[p].should.be.equal(expected[p], 'invalid ' + p);
@@ -406,7 +417,9 @@ describe('Policy tests', function () {
             Update_Branch: true,
             Read_Promotion: true,
             Update_Promotion: true,
-            Delete_Promotion: true
+            Delete_Promotion: true,
+            ReadAll_Promotion:true,
+            UpdateAll_Promotion:true
         };
         _.keys(permissions).forEach(function (p) {
             permissions[p].should.be.equal(expected[p], 'invalid ' + p);
@@ -416,14 +429,14 @@ describe('Policy tests', function () {
 
     it('Checking resource id from req.body, user is owner', function (done) {
         restGuard.userCredentialsFn(function (req, callback) {
-            var userCredentials = ['559806333ec75a390b40771c'];
+            var userCredentials = [OWNER];
             callback(null, userCredentials);
         });
         restGuard.defaultAccess('Promotion', 'Update');
-        var x = request.
+        request.
             post('http://localhost:3001/api1/Promotion').
             set('Content-Type', 'application/json').
-            send({_id:'559806333ec75a390b407719'}).
+            send({_id:PROMOTION_ID}).
             end(function (err, res) {
 
                 should(res.status).be.equal(200);
@@ -435,12 +448,12 @@ describe('Policy tests', function () {
 
     it('Checking resource id from req.query, user is owner', function (done) {
         restGuard.userCredentialsFn(function (req, callback) {
-            var userCredentials = ['559806333ec75a390b40771c'];
+            var userCredentials = [OWNER];
             callback(null, userCredentials);
         });
         restGuard.defaultAccess('Promotion', 'Update');
-        var x = request.
-            post('http://localhost:3001/api1/Promotion?_id=559806333ec75a390b407719').
+        request.
+            post('http://localhost:3001/api1/Promotion?_id='+PROMOTION_ID).
             set('Content-Type', 'application/json').
 
             end(function (err, res) {
@@ -459,15 +472,15 @@ describe('Policy tests', function () {
         });
 
         var permission = [
-            {user: 'kwantec', resource: {id: '559806333ec75a390b407719'}, action: 'Update_Promotion'}
+            {user: 'kwantec', resource: {id: PROMOTION_ID}, action: 'Update_Promotion'}
         ];
 
         restGuard.grantPermission(permission);
         restGuard.defaultAccess('Promotion', 'Update');
-        var x = request.
+        request.
             post('http://localhost:3001/api1/Promotion').
             set('Content-Type', 'application/json').
-            send({_id:'559806333ec75a390b407719'}).
+            send({_id:PROMOTION_ID}).
             end(function (err, res) {
                 restGuard.revokePermission(permission);
                 should(res.status).be.equal(200);
@@ -484,13 +497,13 @@ describe('Policy tests', function () {
         });
 
         var permission = [
-            {user: 'kwantec', resource: {id: '559806333ec75a390b407719'}, action: 'Update_Promotion'}
+            {user: 'kwantec', resource: {id: PROMOTION_ID}, action: 'Update_Promotion'}
         ];
 
         restGuard.grantPermission(permission);
         restGuard.defaultAccess('Promotion', 'Update');
-        var x = request.
-            post('http://localhost:3001/api1/Promotion?_id=559806333ec75a390b407719').
+        request.
+            post('http://localhost:3001/api1/Promotion?_id='+PROMOTION_ID).
             set('Content-Type', 'application/json').
 
             end(function (err, res) {
@@ -510,15 +523,15 @@ describe('Policy tests', function () {
         });
 
         //var permission = [
-        //    {user: 'kwantec', resource: {id: '559806333ec75a390b407719'}, action: 'Update_Promotion'}
+        //    {user: 'kwantec', resource: {id: PROMOTION_ID}, action: 'Update_Promotion'}
         //];
 
         //restGuard.grantPermission(permission);
         restGuard.defaultAccess('Promotion', 'Update');
-        var x = request.
+        request.
             post('http://localhost:3001/api1/Promotion').
             set('Content-Type', 'application/json').
-            send({_id:'559806333ec75a390b407719'}).
+            send({_id:PROMOTION_ID}).
             end(function (err, res) {
                 //restGuard.revokePermission(permission);
                 should(res.status).be.equal(403);
@@ -528,20 +541,20 @@ describe('Policy tests', function () {
 
     });
 
-    it.only('Checking resource id from req.query, user has not permission', function (done) {
+    it('Checking resource id from req.query, user has not permission', function (done) {
         restGuard.userCredentialsFn(function (req, callback) {
             var userCredentials = ['kwantec'];
             callback(null, userCredentials);
         });
 
         //var permission = [
-        //    {user: 'kwantec', resource: {id: '559806333ec75a390b407719'}, action: 'Update_Promotion'}
+        //    {user: 'kwantec', resource: {id: PROMOTION_ID}, action: 'Update_Promotion'}
         //];
 
         //restGuard.grantPermission(permission);
         restGuard.defaultAccess('Promotion', 'Update');
-        var x = request.
-            post('http://localhost:3001/api1/Promotion?_id=559806333ec75a390b407719').
+        request.
+            post('http://localhost:3001/api1/Promotion?_id='+PROMOTION_ID).
             set('Content-Type', 'application/json').
 
             end(function (err, res) {
@@ -553,6 +566,182 @@ describe('Policy tests', function () {
 
     });
 
+    it('Checking resource owner id from req.body (defined in policy), user has  permission {query:{data: {owner:OWNER}}}', function (done) {
+        restGuard.userCredentialsFn(function (req, callback) {
+            var userCredentials = ['kwantec'];
+            callback(null, userCredentials);
+        });
+
+        var permission = [
+            {user: 'kwantec', resource: {owner: OWNER}, action: 'ReadAll_Promotion'}
+        ];
+
+        restGuard.grantPermission(permission);
+        restGuard.defaultAccess('Promotion', 'ReadAll');
+        request.
+            get('http://localhost:3001/api1/Promotion').
+            set('Content-Type', 'application/json').
+            send({query:{data: {owner:OWNER}}}).
+            end(function (err, res) {
+                restGuard.revokePermission(permission);
+                should(res.status).be.equal(200);
+                should(res.forbidden).be.false();
+                done();
+            });
+
+    });
+
+    it('Checking resource owner id from req.body (defined in policy), user has  permission {query:{\'data.owner\':OWNER}}', function (done) {
+        restGuard.userCredentialsFn(function (req, callback) {
+            var userCredentials = ['kwantec'];
+            callback(null, userCredentials);
+        });
+
+        var permission = [
+            {user: 'kwantec', resource: {owner: OWNER}, action: 'ReadAll_Promotion'}
+        ];
+
+        restGuard.grantPermission(permission);
+        restGuard.defaultAccess('Promotion', 'ReadAll');
+        request.
+            get('http://localhost:3001/api1/Promotion').
+            set('Content-Type', 'application/json').
+            send({query:{'data.owner':OWNER}}).
+            end(function (err, res) {
+                restGuard.revokePermission(permission);
+                should(res.status).be.equal(200);
+                should(res.forbidden).be.false();
+                done();
+            });
+
+    });
+
+    it('Checking resource owner id from req.body (defined in policy), user has  permission {query:\'{"data.owner":"OWNER"}\'}', function (done) {
+        restGuard.userCredentialsFn(function (req, callback) {
+            var userCredentials = ['kwantec'];
+            callback(null, userCredentials);
+        });
+
+        var permission = [
+            {user: 'kwantec', resource: {owner: OWNER}, action: 'ReadAll_Promotion'}
+        ];
+
+        restGuard.grantPermission(permission);
+        restGuard.defaultAccess('Promotion', 'ReadAll');
+        request.
+            get('http://localhost:3001/api1/Promotion').
+            set('Content-Type', 'application/json').
+            send({query:'{"data.owner":"'+OWNER+'"}'}).
+            end(function (err, res) {
+                restGuard.revokePermission(permission);
+                should(res.status).be.equal(200);
+                should(res.forbidden).be.false();
+                done();
+            });
+
+    });
+
+    it('Checking resource parent id from req.body (defined in policy), user has permission over parent', function (done) {
+        restGuard.userCredentialsFn(function (req, callback) {
+            var userCredentials = ['kwantec'];
+            callback(null, userCredentials);
+        });
+
+        var permission = [
+            {user: 'kwantec', resource: {parent: PARENT_ID}, action: 'UpdateAll_Promotion'}
+        ];
+
+        restGuard.grantPermission(permission);
+        restGuard.defaultAccess('Promotion', 'UpdateAll_Promotion');
+        request.
+            put('http://localhost:3001/api1/Promotion').
+            set('Content-Type', 'application/json').
+            send({query:'{"data.parent":"'+PARENT_ID+'"}'}).
+            end(function (err, res) {
+                restGuard.revokePermission(permission);
+                should(res.status).be.equal(200);
+                should(res.forbidden).be.false();
+                done();
+            });
+
+    });
+
+    it('Checking resource parent id from req.body (defined in policy), user has permission over ancestor', function (done) {
+        restGuard.userCredentialsFn(function (req, callback) {
+            var userCredentials = ['kwantec'];
+            callback(null, userCredentials);
+        });
+
+        var permission = [
+            {user: 'kwantec', resource: {parent: ANCESTOR_ID}, action: 'UpdateAll_Promotion'}
+        ];
+
+        restGuard.grantPermission(permission);
+        restGuard.defaultAccess('Promotion', 'UpdateAll_Promotion');
+        request.
+            put('http://localhost:3001/api1/Promotion').
+            set('Content-Type', 'application/json').
+            send({query:'{"data.parent":"'+PARENT_ID+'"}'}).
+            end(function (err, res) {
+                restGuard.revokePermission(permission);
+                should(res.status).be.equal(200);
+                should(res.forbidden).be.false();
+                done();
+            });
+
+    });
+
+    it('Checking resource parent id from req.query (defined in policy), user has permission over ancestor', function (done) {
+        restGuard.userCredentialsFn(function (req, callback) {
+            var userCredentials = ['kwantec'];
+            callback(null, userCredentials);
+        });
+
+        var permission = [
+            {user: 'kwantec', resource: {parent: ANCESTOR_ID}, action: 'UpdateAll_Promotion'}
+        ];
+
+        var query = 'query={"data.parent":"'+PARENT_ID+'"}';
+        restGuard.grantPermission(permission);
+        restGuard.defaultAccess('Promotion', 'UpdateAll_Promotion');
+        request.
+            put('http://localhost:3001/api1/Promotion?'+query).
+            set('Content-Type', 'application/json').
+
+            end(function (err, res) {
+                restGuard.revokePermission(permission);
+                should(res.status).be.equal(200);
+                should(res.forbidden).be.false();
+                done();
+            });
+
+    });
+
+    it('Checking resource parent id from req.query (defined in policy), user has permission over ancestor', function (done) {
+        restGuard.userCredentialsFn(function (req, callback) {
+            var userCredentials = ['kwantec'];
+            callback(null, userCredentials);
+        });
+
+        var permission = [
+            {user: 'kwantec', resource: {parent: ANCESTOR_ID}, action: 'UpdateAll_Promotion'}
+        ];
+
+        var query = 'query={"data.parent":"'+ANCESTOR_ID+'"}';
+        restGuard.grantPermission(permission);
+        restGuard.defaultAccess('Promotion', 'UpdateAll_Promotion');
+        request.
+            put('http://localhost:3001/api1/Promotion?'+query).
+            set('Content-Type', 'application/json').
+
+            end(function (err, res) {
+                restGuard.revokePermission(permission);
+                should(res.status).be.equal(200);
+                should(res.forbidden).be.false();
+                done();
+            });
+
+    });
 
 
 });

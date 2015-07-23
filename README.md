@@ -117,6 +117,34 @@ You can define a resource's permission by id, owner, or parent.
 
 and that's all. **Your Rest API is guarded.**
 
+#### Additional features.
+
+If you set the resource's id, owner or parent (or ancestor) in uri part, req.query or req.body as custom param,
+you can define it as in the following examples: 
+
+```
+restGuard.createPolicy('api/Model/:theId', ...).setResourceIdFromUri('theId');
+//or
+restGuard.createPolicy('api/Model/, ...).setResourceIdFromBody('theId');
+//or
+restGuard.createPolicy('api/Model', ...).setResourceIdFromQuery('theId');
+```
+in addition you could have the body/query request as follow:
+```
+//you could define body/query as a complex object (no depth restriction):
+//your req.body = {query: {aResourceId: '60D15600Dec75a735051560D'}}
+//you can define:
+restGuard.createPolicy('api/Model', ...).setResourceIdFromBody('query.aResourceId');
+
+//your req.body = {query: {subQuery:{aResourceId: '60D15600Dec75a735051560D'}}}
+//you can define:
+restGuard.createPolicy('api/Model', ...).setResourceIdFromBody('query.subQuery.aResourceId');
+
+//even more, you could search over an stringified JSON object.
+ //your req.body = {query: '{"subQuery":{"aResourceId": "60D15600Dec75a735051560D"}}'}
+ //you can define:
+ restGuard.createPolicy('api/Model', ...).setResourceIdFromBody('query.subQuery.aResourceId');
+```
 
 ## Motivation
 
@@ -169,19 +197,56 @@ function policiesCount();
 * When a policy is created, if the uri has a param 
 * you could define if is the resource id.
 */
-function setResourceId(uriParam);
+function setResourceIdFromUri(param);
 
 /**
 * When a policy is created, if the uri has a param 
 * you could define if is the resource owner id.
 */
-function setResourceOwnerId(uriParam);
+function setResourceOwnerIdFromUri(param);
 
 /**
 * When a policy is created, if the uri has a param 
 * you could define if is the resource parent id.
 */
-function setResourceParentId(uriParam);
+function setResourceParentIdFromUri(param);
+
+/**
+* When a policy is created, if the req.body has a param 
+* you could define if is the resource id.
+*/
+function setResourceIdFromBody(param);
+
+/**
+* When a policy is created, if the req.body has a param 
+* you could define if is the resource owner id.
+*/
+function setResourceOwnerIdFromBody(param);
+
+/**
+* When a policy is created, if the req.body has a param 
+* you could define if is the resource parent id.
+*/
+function setResourceParentIdFromBody(param);
+
+/**
+* When a policy is created, if the req.query has a param 
+* you could define if is the resource id.
+*/
+function setResourceIdFromQuery(param);
+
+/**
+* When a policy is created, if the req.query has a param 
+* you could define if is the resource owner id.
+*/
+function setResourceOwnerIdFromQuery(param);
+
+/**
+* When a policy is created, if the req.query has a param 
+* you could define if is the resource parent id.
+*/
+function setResourceParentIdFromQuery(param);
+
 
 /**
  * To grant access roles.

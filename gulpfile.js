@@ -7,7 +7,7 @@ var gulpLoadPlugins = require('gulp-load-plugins');
 var plugins = gulpLoadPlugins();
 
 gulp.task('default', function () {
-    return gulp.src(['test/permission-test.js'])
+    return gulp.src(['test/*-test.js'])
         .pipe(plugins.mocha({
             reporter: 'spec'
         }));
