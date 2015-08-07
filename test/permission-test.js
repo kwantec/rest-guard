@@ -53,7 +53,7 @@ function init(app) {
         createPolicy('Business', 'ReadByUser', '/User/:userId/Business', 'get').resourceOwnerIdFromUri('userId').
         createPolicy('Branch', 'Read', '/Branch/:branchId', 'get').resourceIdFromUri('branchId').
         createPolicy('Branch', 'Update', '/Branch/:branchId', 'post').
-        createPolicy('Promotion', 'ReadAll', '/Promotion', 'get').resourceOwnerIdFromBody('query.data.owner').
+        createPolicy('Promotion', 'ReadAll', '/Promotion', 'get').resourceOwnerIdFromBody('query.data.owner').resourceParentIdFromBody('query.business').
         createPolicy('Promotion', 'Read', '/Promotion/:promotionId', 'get').resourceIdFromUri('promotionId').
         createPolicy('Promotion', 'UpdateAll', '/Promotion', 'put').resourceParentIdFromBody('query.data.parent').resourceParentIdFromQuery('query.data.parent').
         createPolicy('Promotion', 'Update', '/Promotion', 'POST').
@@ -157,6 +157,44 @@ describe('Policy tests', function () {
         request.
             get('http://localhost:3001/api1/Promotion/'+PROMOTION_ID).
             set('Content-Type', 'application/json').
+            end(function (err, res) {
+                should(res.status).be.equal(200);
+                should(res.forbidden).be.false();
+                done();
+            });
+    });
+
+    it('Granted resources access by parent because user is owner of parent, Promotions Read', function (done) {
+
+        //defining the function that returns the user credentials
+        restGuard.userCredentialsFn(function (req, callback) {
+            var userCredentials = [OWNER];
+            callback(null, userCredentials);
+        });
+        restGuard.defaultAccess('Promotion', 'Read');
+        request.
+            get('http://localhost:3001/api1/Promotion/').
+            set('Content-Type', 'application/json').
+            send({'query.data.parent': PARENT_ID}).
+            end(function (err, res) {
+                should(res.status).be.equal(200);
+                should(res.forbidden).be.false();
+                done();
+            });
+    });
+
+    it('Granted resources access by ancestor because user is owner of ancestor, Promotions Read', function (done) {
+
+        //defining the function that returns the user credentials
+        restGuard.userCredentialsFn(function (req, callback) {
+            var userCredentials = [OWNER];
+            callback(null, userCredentials);
+        });
+        restGuard.defaultAccess('Promotion', 'Read');
+        request.
+            get('http://localhost:3001/api1/Promotion/').
+            set('Content-Type', 'application/json').
+            send({'query.data.parent': ANCESTOR_ID}).
             end(function (err, res) {
                 should(res.status).be.equal(200);
                 should(res.forbidden).be.false();

@@ -9,10 +9,10 @@ Library for Access Control to REST services in NODEJS.
 
 **Middleware.**
 
-To denied all API endpoints access you must use the middleware:
+To deny all API endpoints access you must use the middleware:
  
  ```javascript
- vr app = require('express')();
+ var app = require('express')();
  var restGuard = require('rest-guard');
  ...
  //rest-guard middleware
@@ -23,7 +23,7 @@ To denied all API endpoints access you must use the middleware:
  ```
 **User credentials.** 
 
-You must define a function to get user credentials (id, role, share link, whatever you define)
+You must define a function to get user's credentials (id, role, share link, whatever you define)
 ```javascript
 restGuard.userCredentialsFn(function (req, callback) {
         //you must provide an Array of user's credentials.        
@@ -40,7 +40,7 @@ policyService.configureStorage(db, 'permissions_collection');
 ```
 **Models parenting and owner definitions.**
 
- First, you must define your models parenting and owner properties:
+ First, you must define the models' owner and parenting:
  
  ```javascript
 //Configuring model data owners, parenting;
@@ -56,7 +56,7 @@ policyService.configureStorage(db, 'permissions_collection');
  ```
 **Policy definition.**
 
-To define access you must create policies first:
+To define access you must create policies:
 
 ```javascript
 //Policy over path /Promotion and method GET. 
@@ -103,7 +103,7 @@ You can define a resource's permission by id, owner, or parent.
       restGuard.grantPermission(permission);
  ```
  
- _**Note**: If the user is the owner of the resource, he will have full access. It is not necessary to define permission._
+ _**Note**: If the user is the owner of the resource, he will have full access. It is not necessary to define permission.
  
  or by parent id:
   ```javascript 
@@ -122,7 +122,7 @@ and that's all. **Your Rest API is guarded.**
 If you set the resource's id, owner or parent (or ancestor) in uri part, req.query or req.body as custom param,
 you can define it as in the following examples: 
 
-```
+```javascript 
 restGuard.createPolicy('api/Model/:theId', ...).setResourceIdFromUri('theId');
 //or
 restGuard.createPolicy('api/Model/, ...).setResourceIdFromBody('theId');
@@ -130,7 +130,7 @@ restGuard.createPolicy('api/Model/, ...).setResourceIdFromBody('theId');
 restGuard.createPolicy('api/Model', ...).setResourceIdFromQuery('theId');
 ```
 in addition you could have the body/query request as follow:
-```
+```javascript 
 //you could define body/query as a complex object (no depth restriction):
 //your req.body = {query: {aResourceId: '60D15600Dec75a735051560D'}}
 //you can define:
